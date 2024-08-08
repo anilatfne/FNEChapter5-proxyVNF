@@ -1,0 +1,56 @@
+version: "3.7"
+services:
+    N1HostA:
+        image: jmalloc/echo-server:latest
+        container_name: wserver1
+        tty: true
+        cap_add:
+                - ALL
+        networks:
+            cnet1:
+    N1HostB:
+        image: jmalloc/echo-server:latest
+        container_name: wserver2
+        cap_add:
+                - ALL
+        networks:
+            cnet1:
+
+    N2HostC:
+        image: jmalloc/echo-server:latest
+        container_name: wserver3
+        tty: true
+        cap_add:
+                - ALL
+
+        networks:
+            cnet1:
+
+
+    Proxy:
+        image: haproxytech/haproxy-alpine:2.4
+        container_name: loadbalancer
+        ports:
+                - "80:80"
+                - "8404:8404" 
+        tty: true
+        cap_add:
+                - ALL
+        networks:
+            cnet1:
+
+        volumes:
+                - .:/usr/local/etc/haproxy:ro
+        depends_on:
+                - N1HostA         
+                - N1HostB          
+                - N2HostC          
+
+networks:
+    cnet1:
+        ipam:
+            config:
+                - subnet: 10.0.100.0/24
+
+
+
